@@ -1,14 +1,18 @@
 const express = require("express");
+const bodyParser = require("body-parser");
+const { v4: uuidv4 } = require("uuid");
 const app = express();
 
 const users = [
     {
-        "id": 1,
-        "nome": "Pedro"
+        "id": uuidv4(),
+        "nome": "Pedro",
+        "idade": 21
     },
     {
-        "id": 2,
-        "nome": "Maria"
+        "id": uuidv4(),
+        "nome": "Maria",
+        "idade": 30
     },
 ];
 
@@ -29,22 +33,22 @@ const movies = [
     }
 ];
 
-//Listar filmes
-app.get("/movies", (req, res)=>{
-    const getMovies = movies;
-    res.json(getMovies);
-});
+app.use(bodyParser.json());
 
 //listar usuários
-app.get("/users", (req, res)=>{
+app.get("/users", (req, res)=>{ 
     const getUser = users;
     res.json(getUser);
 });
 
-//Query Params
-app.get("/users/:id", (req, res)=>{
-    const currentUser = users.find((user) => user.id ==req.params.id);
-    res.json(currentUser);
+app.post("/users", (req, res) => {
+    // body - request.body {name, age}
+    const newUser = {
+        ...req.body,
+        id: uuidv4()
+    };
+    users.push(newUser);
+    res.json(newUser);
 });
 
 app.listen(8080, ()=>{
