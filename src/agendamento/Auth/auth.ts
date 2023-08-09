@@ -8,12 +8,12 @@ export function AuthGuard(request:any, response:any, next:any)
 {
     const { headers } = request;
     const { authorization } = headers;
-    const { cnh } = request.params;
+    const { crm } = request.params;
     try{
-        const doctor = doctors.find((dct) => dct.doctorCnh === cnh);
+        const doctor = doctors.find((dct) => dct.doctorCrm === crm);
         const decoded:any = JWT.verify(authorization, secretKey);
 
-        if (decoded.doctorCnh === doctor?.doctorCnh) {
+        if (decoded.doctorCrm === doctor?.doctorCrm) {
         }
         
     }catch(error){

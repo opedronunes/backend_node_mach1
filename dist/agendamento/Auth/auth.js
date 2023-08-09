@@ -11,11 +11,11 @@ const doctors = [];
 function AuthGuard(request, response, next) {
     const { headers } = request;
     const { authorization } = headers;
-    const { cnh } = request.params;
+    const { crm } = request.params;
     try {
-        const doctor = doctors.find((dct) => dct.doctorCnh === cnh);
+        const doctor = doctors.find((dct) => dct.doctorCrm === crm);
         const decoded = jsonwebtoken_1.default.verify(authorization, config_1.secretKey);
-        if (decoded.doctorCnh === (doctor === null || doctor === void 0 ? void 0 : doctor.doctorCnh)) {
+        if (decoded.doctorCrm === (doctor === null || doctor === void 0 ? void 0 : doctor.doctorCrm)) {
         }
     }
     catch (error) {
