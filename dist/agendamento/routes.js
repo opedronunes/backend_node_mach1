@@ -12,16 +12,17 @@ const config_1 = require("./Auth/config");
 const doctorRequest_1 = require("./doctor/doctorRequest");
 const patientRequest_1 = require("./patient/patientRequest");
 const appointmentRequest_1 = require("./appointment/appointmentRequest");
+const doctor_service_1 = __importDefault(require("./doctor/doctor.service"));
 const app = (0, express_1.default)();
 const doctors = [];
 app.use(body_parser_1.default.json());
 //Doctor Login
 app.post('/login', (request, response) => {
-    const { doctorCrm, doctorPass } = request.body;
-    const doctor = doctors.find((dct) => dct.doctorCrm === doctorCrm);
-    if (doctorCrm === (doctor === null || doctor === void 0 ? void 0 : doctor.doctorCrm) && doctorPass === (doctor === null || doctor === void 0 ? void 0 : doctor.doctorPass)) {
+    const { crm, password } = request.body;
+    const doctor = doctors.find((dct) => dct.crm === crm);
+    if (crm === (doctor === null || doctor === void 0 ? void 0 : doctor.crm) && password === (doctor === null || doctor === void 0 ? void 0 : doctor.password)) {
         const token = jsonwebtoken_1.default.sign({
-            doctorCrm
+            crm
         }, config_1.secretKey, {
             expiresIn: "15m",
         });
@@ -48,20 +49,21 @@ app.post('/doctors', (request, response) => {
         });
     }
     ;
-    const { doctorName, doctorCrm, doctorPass } = request.body;
-    const crm = doctors.find((uniqueCrm) => uniqueCrm.doctorCrm === doctorCrm);
-    //valida se crm ja existe no banco
-    if (!crm) {
-        const newDoctor = {
-            id: (0, uuid_1.v4)(),
-            doctorName,
-            doctorCrm,
-            doctorPass
-        };
-        doctors.push(newDoctor);
+    const { name, crm, password } = request.body;
+    //const crm = doctors.find((uniqueCrm) => uniqueCrm.doctorCrm === doctorCrm);
+    const newDoctor = {
+        id: (0, uuid_1.v4)(),
+        name,
+        crm,
+        password
+    };
+    const insertDoctor = doctor_service_1.default.createDoctor(newDoctor, doctors);
+    if (insertDoctor) {
         return response.status(201).json(newDoctor);
     }
-    return response.status(404).send("Usuário já cadastrado!");
+    else {
+        return response.status(404).send("Usuário já cadastrado!");
+    }
 });
 // Update doctor
 app.put('/doctors/:id', auth_1.AuthGuard, (request, response) => {
@@ -73,7 +75,7 @@ app.put('/doctors/:id', auth_1.AuthGuard, (request, response) => {
         });
     }
     ;
-    const { doctorName, doctorCrm, doctorPass } = request.body;
+    const { name, crm, password } = request.body;
     const doctor = doctors.find((dct) => dct.id === id);
     if (!doctor) {
         return response.status(404).json({
@@ -81,9 +83,9 @@ app.put('/doctors/:id', auth_1.AuthGuard, (request, response) => {
         });
     }
     ;
-    doctor.doctorName = doctorName;
-    doctor.doctorCrm = doctorCrm;
-    doctor.doctorPass = doctorPass;
+    doctor.name = name;
+    doctor.crm = crm;
+    doctor.password = password;
     return response.json(doctor);
 });
 /* ROUTES PATIENT */

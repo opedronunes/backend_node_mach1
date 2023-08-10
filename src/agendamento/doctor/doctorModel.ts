@@ -1,7 +1,7 @@
 interface Doctor 
 {
     id: string,
-    doctorName: string,
-    doctorCrm: string,
-    doctorPass: string
+    name: string,
+    crm: string,
+    password: string
 }

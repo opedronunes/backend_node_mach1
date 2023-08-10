@@ -13,9 +13,9 @@ function AuthGuard(request, response, next) {
     const { authorization } = headers;
     const { crm } = request.params;
     try {
-        const doctor = doctors.find((dct) => dct.doctorCrm === crm);
+        const doctor = doctors.find((dct) => dct.crm === crm);
         const decoded = jsonwebtoken_1.default.verify(authorization, config_1.secretKey);
-        if (decoded.doctorCrm === (doctor === null || doctor === void 0 ? void 0 : doctor.doctorCrm)) {
+        if (decoded.doctorCrm === (doctor === null || doctor === void 0 ? void 0 : doctor.crm)) {
         }
     }
     catch (error) {

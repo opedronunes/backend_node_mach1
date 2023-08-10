@@ -7,8 +7,10 @@ import { secretKey } from "./Auth/config";
 import { doctorSchema } from "./doctor/doctorRequest";
 import { patientSchema } from "./patient/patientRequest";
 import { appointmentSchema } from "./appointment/appointmentRequest";
+import doctorService from "./doctor/doctor.service";
 
 const app = express();
+
 const doctors: Doctor[] = [];
 
 
@@ -17,13 +19,13 @@ app.use(bodyParser.json());
 
 //Doctor Login
 app.post('/login', (request, response) => {
-    const { doctorCrm, doctorPass } = request.body;
+    const { crm, password } = request.body;
 
-    const doctor = doctors.find((dct) => dct.doctorCrm === doctorCrm);
+    const doctor = doctors.find((dct) => dct.crm === crm);
 
-    if (doctorCrm === doctor?.doctorCrm && doctorPass === doctor?.doctorPass) {
+    if (crm === doctor?.crm && password === doctor?.password) {
         const token = JWT.sign({
-            doctorCrm
+            crm
         }, secretKey, {
             expiresIn: "15m",
         });
@@ -60,28 +62,28 @@ app.post('/doctors', (request, response) => {
     };
 
     const {
-        doctorName,
-        doctorCrm,
-        doctorPass
+        name,
+        crm,
+        password
     } = request.body;
 
-    const crm = doctors.find((uniqueCrm) => uniqueCrm.doctorCrm === doctorCrm);
+    //const crm = doctors.find((uniqueCrm) => uniqueCrm.doctorCrm === doctorCrm);
 
-    //valida se crm ja existe no banco
-    if (!crm) {
-        const newDoctor: Doctor = {
-            id: uuidv4(),
-            doctorName,
-            doctorCrm,
-            doctorPass
-        };
+    const newDoctor: Doctor = {
+        id: uuidv4(),
+        name,
+        crm,
+        password
+    };
 
-        doctors.push(newDoctor);
+    const insertDoctor = doctorService.createDoctor(newDoctor, doctors);
 
-        return response.status(201).json(newDoctor);
+    if (insertDoctor) {
+        return response.status(201).json(newDoctor);        
+    }else{
+        return response.status(404).send("Usuário já cadastrado!");
     }
 
-    return response.status(404).send("Usuário já cadastrado!");
 
 });
 
@@ -99,9 +101,9 @@ app.put('/doctors/:id', AuthGuard, (request, response) => {
     };
 
     const {
-        doctorName,
-        doctorCrm,
-        doctorPass
+        name,
+        crm,
+        password
     } = request.body;
 
     const doctor = doctors.find((dct) => dct.id === id);
@@ -112,9 +114,9 @@ app.put('/doctors/:id', AuthGuard, (request, response) => {
         });
     };
 
-    doctor.doctorName = doctorName;
-    doctor.doctorCrm = doctorCrm;
-    doctor.doctorPass = doctorPass;
+    doctor.name = name;
+    doctor.crm = crm;
+    doctor.password = password;
 
     return response.json(doctor);
 
