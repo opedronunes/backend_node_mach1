@@ -12,4 +12,4 @@ class DoctorService
   }
 }
 
-export default new DoctorService();
+export default DoctorService;

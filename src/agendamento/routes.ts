@@ -4,18 +4,16 @@ import JWT from 'jsonwebtoken';
 import { v4 as uuidv4 } from "uuid";
 import { AuthGuard } from "./Auth/auth";
 import { secretKey } from "./Auth/config";
+import { appointmentSchema } from "./appointment/appointmentRequest";
+import DoctorController from "./controllers/DoctorController";
 import { doctorSchema } from "./doctor/doctorRequest";
 import { patientSchema } from "./patient/patientRequest";
-import { appointmentSchema } from "./appointment/appointmentRequest";
-import doctorService from "./doctor/doctor.service";
 
 const app = express();
 
 const doctors: Doctor[] = [];
 
-
 app.use(bodyParser.json());
-
 
 //Doctor Login
 app.post('/login', (request, response) => {
@@ -51,7 +49,10 @@ app.get('/doctors', AuthGuard, (request, response) => {
 });
 
 // insert doctor
-app.post('/doctors', (request, response) => {
+app.post('/doctors', DoctorController);
+
+/*
+(request, response) => {
 
     const { error } = doctorSchema.validate(request.body);
 
@@ -60,7 +61,7 @@ app.post('/doctors', (request, response) => {
             error: error.details[0].message
         });
     };
-
+ 
     const {
         name,
         crm,
@@ -83,9 +84,8 @@ app.post('/doctors', (request, response) => {
     }else{
         return response.status(404).send("Usuário já cadastrado!");
     }
-
-
-});
+}
+*/
 
 // Update doctor
 app.put('/doctors/:id', AuthGuard, (request, response) => {

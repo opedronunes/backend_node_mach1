@@ -9,10 +9,10 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const uuid_1 = require("uuid");
 const auth_1 = require("./Auth/auth");
 const config_1 = require("./Auth/config");
+const appointmentRequest_1 = require("./appointment/appointmentRequest");
+const DoctorController_1 = __importDefault(require("./controllers/DoctorController"));
 const doctorRequest_1 = require("./doctor/doctorRequest");
 const patientRequest_1 = require("./patient/patientRequest");
-const appointmentRequest_1 = require("./appointment/appointmentRequest");
-const doctor_service_1 = __importDefault(require("./doctor/doctor.service"));
 const app = (0, express_1.default)();
 const doctors = [];
 app.use(body_parser_1.default.json());
@@ -41,30 +41,42 @@ app.get('/doctors', auth_1.AuthGuard, (request, response) => {
     return response.status(200).json(AllDoctors);
 });
 // insert doctor
-app.post('/doctors', (request, response) => {
-    const { error } = doctorRequest_1.doctorSchema.validate(request.body);
+app.post('/doctors', DoctorController_1.default);
+/*
+(request, response) => {
+
+    const { error } = doctorSchema.validate(request.body);
+
     if (error) {
         return response.status(400).json({
             error: error.details[0].message
         });
-    }
-    ;
-    const { name, crm, password } = request.body;
+    };
+ 
+    const {
+        name,
+        crm,
+        password
+    } = request.body;
+
     //const crm = doctors.find((uniqueCrm) => uniqueCrm.doctorCrm === doctorCrm);
-    const newDoctor = {
-        id: (0, uuid_1.v4)(),
+
+    const newDoctor: Doctor = {
+        id: uuidv4(),
         name,
         crm,
         password
     };
-    const insertDoctor = doctor_service_1.default.createDoctor(newDoctor, doctors);
+
+    const insertDoctor = doctorService.createDoctor(newDoctor, doctors);
+
     if (insertDoctor) {
         return response.status(201).json(newDoctor);
-    }
-    else {
+    }else{
         return response.status(404).send("Usuário já cadastrado!");
     }
-});
+}
+*/
 // Update doctor
 app.put('/doctors/:id', auth_1.AuthGuard, (request, response) => {
     const { id } = request.params;
