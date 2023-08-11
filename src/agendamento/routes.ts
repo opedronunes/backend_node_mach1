@@ -5,9 +5,11 @@ import { v4 as uuidv4 } from "uuid";
 import { AuthGuard } from "./Auth/auth";
 import { secretKey } from "./Auth/config";
 import { appointmentSchema } from "./appointment/appointmentRequest";
-import DoctorController from "./controllers/DoctorController";
 import { doctorSchema } from "./doctor/doctorRequest";
 import { patientSchema } from "./patient/patientRequest";
+import DoctorService from "./doctor/doctor.service";
+import Database from "./db/database";
+import DoctorController from "./controllers/doctorController";
 
 const app = express();
 
@@ -49,7 +51,10 @@ app.get('/doctors', AuthGuard, (request, response) => {
 });
 
 // insert doctor
-app.post('/doctors', DoctorController);
+const doctorService = new DoctorService();
+const doctorController = new DoctorController(doctorService);
+
+app.post('/doctors', doctorController.createDoctor.bind(doctorController));
 
 /*
 (request, response) => {

@@ -7,10 +7,10 @@ const mysql_1 = __importDefault(require("mysql"));
 class Database {
     constructor() {
         this.connection = mysql_1.default.createConnection({
-            host: 'localhost',
-            user: 'root',
-            password: 'Nono@2022',
-            database: 'mydb'
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DB
         });
         this.connection.connect((error) => {
             if (error) {

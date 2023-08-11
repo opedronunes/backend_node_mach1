@@ -45,8 +45,6 @@ async function createDoctor(request:any, response:any){
 export default createDoctor;
 */
 
-const doctors: Doctor[] = [];
-
 class DoctorController 
 {
     private doctorService: DoctorService;
@@ -66,16 +64,15 @@ class DoctorController
                 error: error.details[0].message
             });
         };
-
-        const newDoctor: Doctor = {
-            id: uuidv4(),
-            name,
-            crm,
-            password
-        };
     
         try {
-            const insertdDoctor = await this.doctorService.createDoctor(newDoctor, doctors);
+            const newDoctor: Doctor = {
+                id: uuidv4(),
+                name,
+                crm,
+                password
+            };
+            const insertdDoctor = await this.doctorService.createDoctor(newDoctor);
             return response.status(201).json(insertdDoctor);
         } catch (error) {
             return response.status(404).send("Usuário já cadastrado!");

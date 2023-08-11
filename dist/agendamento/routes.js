@@ -10,9 +10,10 @@ const uuid_1 = require("uuid");
 const auth_1 = require("./Auth/auth");
 const config_1 = require("./Auth/config");
 const appointmentRequest_1 = require("./appointment/appointmentRequest");
-const DoctorController_1 = __importDefault(require("./controllers/DoctorController"));
 const doctorRequest_1 = require("./doctor/doctorRequest");
 const patientRequest_1 = require("./patient/patientRequest");
+const doctor_service_1 = __importDefault(require("./doctor/doctor.service"));
+const doctorController_1 = __importDefault(require("./controllers/doctorController"));
 const app = (0, express_1.default)();
 const doctors = [];
 app.use(body_parser_1.default.json());
@@ -41,7 +42,9 @@ app.get('/doctors', auth_1.AuthGuard, (request, response) => {
     return response.status(200).json(AllDoctors);
 });
 // insert doctor
-app.post('/doctors', DoctorController_1.default);
+const doctorService = new doctor_service_1.default();
+const doctorController = new doctorController_1.default(doctorService);
+app.post('/doctors', doctorController.createDoctor.bind(doctorController));
 /*
 (request, response) => {
 
