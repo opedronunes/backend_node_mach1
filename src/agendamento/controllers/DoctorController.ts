@@ -53,6 +53,23 @@ class DoctorController
         this.doctorService = doctorService;
     }
 
+    //getCrm
+    async getDoctorByCrm(request: Request, response: Response) {
+        const {crm, password} = request.body;
+
+        try {
+            const doctor: Doctor | null = await this.doctorService.getDoctorByCrm(crm, password);
+            if (doctor) {
+                response.json(doctor);
+            }else{
+                response.status(400).send('Médico não encontrado!');
+            }
+        } catch (error) {
+            console.error('Erro ao procurar médico pelo CRM', error);
+            response.status(500).send('Erro interno no servidor');
+        }
+    }
+
     async createDoctor(request: Request, response: Response){
 
         const {name, crm, password} = request.body;

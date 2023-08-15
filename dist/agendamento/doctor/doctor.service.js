@@ -50,5 +50,26 @@ class DoctorService {
             }
         });
     }
+    getDoctorByCrm(crm, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const connection = database_1.default.getConnection();
+            try {
+                const sql = 'SELECT * FROM doctors WHERE crm = ? AND password = ?';
+                const [results] = yield connection.execute(sql, [crm, password]);
+                if (Array.isArray(results) && results.length > 0) {
+                    const doctorData = results[0];
+                    return doctorData;
+                }
+                return null;
+            }
+            catch (error) {
+                console.error('Error fetching doctor by CRM:', error);
+                return null;
+            }
+            finally {
+                database_1.default.closeConnection();
+            }
+        });
+    }
 }
 exports.default = DoctorService;

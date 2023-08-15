@@ -12,7 +12,7 @@ class Database {
       this.connection = await mysql.createConnection({
         host: 'localhost',
         user: 'root',
-        password: 'Pedro@2022',
+        password: 'Nono@2022',
         database: 'agendamento'
       });
 

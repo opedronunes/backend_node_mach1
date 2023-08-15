@@ -5,10 +5,11 @@ import { v4 as uuidv4 } from "uuid";
 import { AuthGuard } from "./Auth/auth";
 import { secretKey } from "./Auth/config";
 import { appointmentSchema } from "./appointment/appointmentRequest";
-import DoctorController from "./controllers/DoctorController";
-import DoctorService from "./doctor/doctor.service";
 import { doctorSchema } from "./doctor/doctorRequest";
 import { patientSchema } from "./patient/patientRequest";
+import DoctorService from "./doctor/doctor.service";
+import Database from "./db/database";
+import DoctorController from "./controllers/doctorController";
 
 const app = express();
 
@@ -20,21 +21,28 @@ app.use(bodyParser.json());
 app.post('/login', async (request, response) => {
     const { crm, password } = request.body;
 
+    /*
+        const doctor = doctors.find((dct) => dct.crm === crm);
+        if (crm === doctor?.crm && password === doctor?.password) {
+            const token = JWT.sign({
+                crm
+            }, secretKey, {
+                expiresIn: "15m",
+            });
+     
+            response.json({ token });
+            return;
+        }
+    */
     try {
-        const doctorService = new DoctorService();
-        const doctor = await doctorService.getDoctorByCrm(crm);
-
-        if (doctor && password === doctor.password) {
-            const token = JWT.sign(
-              {
-                crm,
-              },
-              secretKey,
-              {
-                expiresIn: '15m',
-              }
-            );
-      
+        const doctor = await doctorService.getDoctorByCrm(crm, password);
+        if (doctor) {
+            const token = JWT.sign({
+                crm
+            }, secretKey, {
+                expiresIn: "15m",
+            });
+    
             response.json({ token });
             return;
         }
@@ -43,23 +51,9 @@ app.post('/login', async (request, response) => {
         console.error('Error during login:', error);
         response.status(500).send('Erro interno do servidor');
     }
-
-    /*
     
-    const doctor = doctors.find((dct) => dct.crm === crm);
 
-    if (crm === doctor?.crm && password === doctor?.password) {
-        const token = JWT.sign({
-            crm
-        }, secretKey, {
-            expiresIn: "15m",
-        });
-
-        response.json({ token });
-        return;
-    }
     response.status(401).send("Usuário não encontrado!");
-    */
 })
 
 /* ROUTES DOCTOR */
@@ -80,7 +74,7 @@ app.get('/doctors', AuthGuard, (request, response) => {
 const doctorService = new DoctorService();
 const doctorController = new DoctorController(doctorService);
 
-app.post('/doctors', doctorController.createDoctor.bind(doctorController))
+app.post('/doctors', doctorController.createDoctor.bind(doctorController));
 
 /*
 (request, response) => {
@@ -92,7 +86,7 @@ app.post('/doctors', doctorController.createDoctor.bind(doctorController))
             error: error.details[0].message
         });
     };
- 
+    
     const {
         name,
         crm,

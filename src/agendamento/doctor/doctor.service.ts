@@ -36,22 +36,16 @@ class DoctorService
     }
   }
 
-  async getDoctorByCrm(crm: string): Promise<Doctor | null> {
+  async getDoctorByCrm(crm: string, password: string): Promise<Doctor | null> {
     const connection = database.getConnection();
 
     try {
-      const sql = 'SELECT * FROM doctors WHERE crm = ?';
-      const [results] = await connection.execute(sql, [crm]);
+      const sql = 'SELECT * FROM doctors WHERE crm = ? AND password = ?';
+      const [results] = await connection.execute(sql, [crm, password]);
 
       if (Array.isArray(results) && results.length > 0) {
-        const doctorData = results[0];
-        const doctor: Doctor = {
-          id: doctorData.id,
-          name: doctorData.doctorName,
-          crm: doctorData.doctorCrm,
-          password: doctorData.doctorPass,
-        };
-        return doctor;
+        const doctorData = results[0] as Doctor;
+        return doctorData;
       }
 
       return null;

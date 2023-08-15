@@ -24,7 +24,7 @@ class Database {
                 this.connection = yield promise_1.default.createConnection({
                     host: 'localhost',
                     user: 'root',
-                    password: 'Pedro@2022',
+                    password: 'Nono@2022',
                     database: 'agendamento'
                 });
                 console.log('Conexão realizada com sucesso!');

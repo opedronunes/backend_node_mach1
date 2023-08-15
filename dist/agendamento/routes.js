@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -10,28 +19,48 @@ const uuid_1 = require("uuid");
 const auth_1 = require("./Auth/auth");
 const config_1 = require("./Auth/config");
 const appointmentRequest_1 = require("./appointment/appointmentRequest");
-const DoctorController_1 = __importDefault(require("./controllers/DoctorController"));
-const doctor_service_1 = __importDefault(require("./doctor/doctor.service"));
 const doctorRequest_1 = require("./doctor/doctorRequest");
 const patientRequest_1 = require("./patient/patientRequest");
+const doctor_service_1 = __importDefault(require("./doctor/doctor.service"));
+const doctorController_1 = __importDefault(require("./controllers/doctorController"));
 const app = (0, express_1.default)();
 const doctors = [];
 app.use(body_parser_1.default.json());
 //Doctor Login
-app.post('/login', (request, response) => {
+app.post('/login', (request, response) => __awaiter(void 0, void 0, void 0, function* () {
     const { crm, password } = request.body;
-    const doctor = doctors.find((dct) => dct.crm === crm);
-    if (crm === (doctor === null || doctor === void 0 ? void 0 : doctor.crm) && password === (doctor === null || doctor === void 0 ? void 0 : doctor.password)) {
-        const token = jsonwebtoken_1.default.sign({
-            crm
-        }, config_1.secretKey, {
-            expiresIn: "15m",
-        });
-        response.json({ token });
-        return;
+    /*
+        const doctor = doctors.find((dct) => dct.crm === crm);
+        if (crm === doctor?.crm && password === doctor?.password) {
+            const token = JWT.sign({
+                crm
+            }, secretKey, {
+                expiresIn: "15m",
+            });
+     
+            response.json({ token });
+            return;
+        }
+    */
+    try {
+        const doctor = yield doctorService.getDoctorByCrm(crm, password);
+        if (doctor) {
+            const token = jsonwebtoken_1.default.sign({
+                crm
+            }, config_1.secretKey, {
+                expiresIn: "15m",
+            });
+            response.json({ token });
+            return;
+        }
+        response.status(401).send('Usuário não encontrado ou senha incorreta!');
+    }
+    catch (error) {
+        console.error('Error during login:', error);
+        response.status(500).send('Erro interno do servidor');
     }
     response.status(401).send("Usuário não encontrado!");
-});
+}));
 /* ROUTES DOCTOR */
 // All doctors
 app.get('/doctors', auth_1.AuthGuard, (request, response) => {
@@ -43,7 +72,7 @@ app.get('/doctors', auth_1.AuthGuard, (request, response) => {
 });
 // insert doctor
 const doctorService = new doctor_service_1.default();
-const doctorController = new DoctorController_1.default(doctorService);
+const doctorController = new doctorController_1.default(doctorService);
 app.post('/doctors', doctorController.createDoctor.bind(doctorController));
 /*
 (request, response) => {
@@ -55,7 +84,7 @@ app.post('/doctors', doctorController.createDoctor.bind(doctorController));
             error: error.details[0].message
         });
     };
- 
+    
     const {
         name,
         crm,

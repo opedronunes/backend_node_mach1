@@ -54,6 +54,25 @@ class DoctorController {
     constructor(doctorService) {
         this.doctorService = doctorService;
     }
+    //getCrm
+    getDoctorByCrm(request, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { crm, password } = request.body;
+            try {
+                const doctor = yield this.doctorService.getDoctorByCrm(crm, password);
+                if (doctor) {
+                    response.json(doctor);
+                }
+                else {
+                    response.status(400).send('Médico não encontrado!');
+                }
+            }
+            catch (error) {
+                console.error('Erro ao procurar médico pelo CRM', error);
+                response.status(500).send('Erro interno no servidor');
+            }
+        });
+    }
     createDoctor(request, response) {
         return __awaiter(this, void 0, void 0, function* () {
             const { name, crm, password } = request.body;
