@@ -5,11 +5,10 @@ import { v4 as uuidv4 } from "uuid";
 import { AuthGuard } from "./Auth/auth";
 import { secretKey } from "./Auth/config";
 import { appointmentSchema } from "./appointment/appointmentRequest";
+import DoctorController from "./controllers/DoctorController";
+import DoctorService from "./doctor/doctor.service";
 import { doctorSchema } from "./doctor/doctorRequest";
 import { patientSchema } from "./patient/patientRequest";
-import DoctorService from "./doctor/doctor.service";
-import Database from "./db/database";
-import DoctorController from "./controllers/doctorController";
 
 const app = express();
 
@@ -18,9 +17,35 @@ const doctors: Doctor[] = [];
 app.use(bodyParser.json());
 
 //Doctor Login
-app.post('/login', (request, response) => {
+app.post('/login', async (request, response) => {
     const { crm, password } = request.body;
 
+    try {
+        const doctorService = new DoctorService();
+        const doctor = await doctorService.getDoctorByCrm(crm);
+
+        if (doctor && password === doctor.password) {
+            const token = JWT.sign(
+              {
+                crm,
+              },
+              secretKey,
+              {
+                expiresIn: '15m',
+              }
+            );
+      
+            response.json({ token });
+            return;
+        }
+        response.status(401).send('Usuário não encontrado ou senha incorreta!');
+    } catch (error) {
+        console.error('Error during login:', error);
+        response.status(500).send('Erro interno do servidor');
+    }
+
+    /*
+    
     const doctor = doctors.find((dct) => dct.crm === crm);
 
     if (crm === doctor?.crm && password === doctor?.password) {
@@ -34,6 +59,7 @@ app.post('/login', (request, response) => {
         return;
     }
     response.status(401).send("Usuário não encontrado!");
+    */
 })
 
 /* ROUTES DOCTOR */
@@ -54,7 +80,7 @@ app.get('/doctors', AuthGuard, (request, response) => {
 const doctorService = new DoctorService();
 const doctorController = new DoctorController(doctorService);
 
-app.post('/doctors', doctorController.createDoctor.bind(doctorController));
+app.post('/doctors', doctorController.createDoctor.bind(doctorController))
 
 /*
 (request, response) => {

@@ -1,33 +1,40 @@
-import mysql from 'mysql';
+import mysql from 'mysql2/promise';
 
-class Database
-{
-  private connection: mysql.Connection;
+class Database {
+  private connection: mysql.Connection | null = null;
 
-  constructor(){
-    this.connection = mysql.createConnection({
-      host     : process.env.MYSQL_HOST,
-      user     : process.env.MYSQL_USER,
-      password : process.env.MYSQL_PASSWORD,
-      database : process.env.MYSQL_DB
-    });
+  constructor() {
+    this.initializeConnection();
+  }
 
-    this.connection.connect((error) => {
-      if (error) {
-        console.error('Erro de conexão com o banco de dados!', error);
-        throw error;
-      }
+  private async initializeConnection() {
+    try {
+      this.connection = await mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'Pedro@2022',
+        database: 'agendamento'
+      });
+
       console.log('Conexão realizada com sucesso!');
-    });
+    } catch (error) {
+      console.error('Erro de conexão com o banco de dados!', error);
+      throw error;
+    }
   }
 
   public getConnection(): mysql.Connection {
+    if (!this.connection) {
+      throw new Error('Conexão não inicializada corretamente');
+    }
     return this.connection;
   }
 
-  public closeConnection(): void {
-    this.connection.end();
+  public async closeConnection(): Promise<void> {
+    if (this.connection) {
+      await this.connection.end();
+    }
   }
 }
 
-export default Database;
+export default new Database();

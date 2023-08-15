@@ -17,6 +17,7 @@
     "@babel/core": "^7.22.9",
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-typescript": "^7.22.5",
+    "@types/node": "^20.4.10",
     "install": "^0.13.0",
     "npm": "^9.8.0",
     "typescript": "^5.1.6"
@@ -35,6 +36,7 @@
     "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.1",
     "mysql": "^2.18.1",
+    "mysql2": "^3.6.0",
     "readline-sync": "^1.4.10",
     "ts-node": "^10.9.1",
     "uuid": "^9.0.0"
